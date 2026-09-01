@@ -45,6 +45,7 @@ interface CartContextType {
   closeCheckout: () => void;
   placedOrders: PlacedOrder[];
   addPlacedOrder: (order: PlacedOrder) => void;
+  latestOrder: PlacedOrder | null;
   toasts: ToastMessage[];
   showToast: (title: string, message: string, type?: 'success' | 'info' | 'warning') => void;
   removeToast: (id: string) => void;
@@ -52,12 +53,16 @@ interface CartContextType {
   setIsSearchOpen: (open: boolean) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  wishlist: string[];
+  toggleWishlist: (productId: string) => void;
+  isInWishlist: (productId: string) => boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'maison_doree_cart_v1';
-const ORDERS_STORAGE_KEY = 'maison_doree_orders_v1';
+const CART_STORAGE_KEY = 'kom_bakery_cart_v2';
+const ORDERS_STORAGE_KEY = 'kom_bakery_orders_v2';
+const WISHLIST_STORAGE_KEY = 'kom_bakery_wishlist_v2';
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -72,6 +77,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [placedOrders, setPlacedOrders] = useState<PlacedOrder[]>(() => {
     try {
       const saved = localStorage.getItem(ORDERS_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(WISHLIST_STORAGE_KEY);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -107,6 +121,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [placedOrders]);
 
+  // Persist wishlist
+  useEffect(() => {
+    try {
+      localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(wishlist));
+    } catch (e) {
+      console.error('Failed to save wishlist to localStorage', e);
+    }
+  }, [wishlist]);
+
+  const toggleWishlist = (productId: string) => {
+    setWishlist((prev) => {
+      const exists = prev.includes(productId);
+      if (exists) {
+        showToast('Removed from Wishlist', 'Item removed from your favorites.', 'info');
+        return prev.filter((id) => id !== productId);
+      } else {
+        showToast('Saved to Wishlist', 'Item added to your favorites.', 'success');
+        return [...prev, productId];
+      }
+    });
+  };
+
+  const isInWishlist = (productId: string) => wishlist.includes(productId);
+
   const showToast = (
     title: string,
     message: string,
@@ -116,7 +154,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToasts((prev) => [...prev, { id, title, message, type }]);
     setTimeout(() => {
       removeToast(id);
-    }, 4000);
+    }, 3500);
   };
 
   const removeToast = (id: string) => {
@@ -132,7 +170,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unitPrice = calculateProductPrice(product, customization);
     const maxStock = product.availability.remainingStock;
 
-    // Check if adding exceeds stock
     const existingIndex = cart.findIndex((item) => {
       if (item.product.id !== product.id) return false;
       if (customization || item.customization) {
@@ -281,6 +318,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const latestOrder = placedOrders.length > 0 ? placedOrders[0] : null;
 
   return (
     <CartContext.Provider
@@ -309,6 +347,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         closeCheckout,
         placedOrders,
         addPlacedOrder,
+        latestOrder,
         toasts,
         showToast,
         removeToast,
@@ -316,6 +355,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsSearchOpen,
         searchQuery,
         setSearchQuery,
+        wishlist,
+        toggleWishlist,
+        isInWishlist,
       }}
     >
       {children}

@@ -2,6 +2,7 @@ import type { DeliveryZone } from '../types';
 
 export const FREE_DELIVERY_THRESHOLD = 2000;
 export const MIN_DELIVERY_SUBTOTAL = 500;
+export const MINIMUM_DELIVERY_ORDER = 500;
 export const TAX_RATE = 0.05;
 
 export const DELIVERY_ZONES: DeliveryZone[] = [

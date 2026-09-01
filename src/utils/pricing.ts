@@ -4,7 +4,14 @@ import type {
   CartItem,
   FulfillmentType,
 } from '../types';
-import { DELIVERY_ZONES, FREE_DELIVERY_THRESHOLD, TAX_RATE } from '../data/deliveryZones';
+import {
+  DELIVERY_ZONES,
+  FREE_DELIVERY_THRESHOLD,
+  MINIMUM_DELIVERY_ORDER,
+  TAX_RATE,
+} from '../data/deliveryZones';
+
+export { FREE_DELIVERY_THRESHOLD, MINIMUM_DELIVERY_ORDER };
 
 export const formatPrice = (amount: number): string => {
   return new Intl.NumberFormat('en-IN', {

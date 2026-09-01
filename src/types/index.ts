@@ -1,4 +1,4 @@
-export type CategoryId = 'all' | 'cakes' | 'breads' | 'pastries' | 'cookies' | 'vegan' | 'gluten-free';
+export type CategoryId = 'all' | 'cakes' | 'pastries' | 'cookies' | 'cupcakes' | 'breads' | 'vegan' | 'gluten-free';
 
 export type DietaryBadge = 'Vegetarian' | 'Vegan' | 'Gluten-Free' | 'Dairy-Free' | 'Nut-Free' | 'Eggless';
 
@@ -65,6 +65,7 @@ export interface CakeCustomizationSelection {
 
 export interface Product {
   id: string;
+  slug: string;
   name: string;
   tagline: string;
   description: string;
@@ -72,6 +73,7 @@ export interface Product {
   basePrice: number;
   image: string;
   secondaryImage?: string;
+  gallery?: string[];
   rating: number;
   reviewCount: number;
   dietary: DietaryBadge[];
