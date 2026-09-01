@@ -34,11 +34,12 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { ProductCard } from '../components/ProductCard';
 
 export const ProductDetailPage: React.FC = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, id } = useParams<{ slug?: string; id?: string }>();
   const navigate = useNavigate();
   const { addToCart, openCheckout, toggleWishlist, isInWishlist } = useCart();
 
-  const product = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+  const param = slug || id;
+  const product = PRODUCTS.find((p) => p.slug === param || p.id === param);
 
   // Gallery State
   const [activeImageIndex, setActiveImageIndex] = useState(0);
